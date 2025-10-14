@@ -25,7 +25,7 @@ def post_create(request):
 def post_update(request, pk):
     post = get_object_or_404(Post, pk=pk)
     if request.method == 'POST':
-        form = Postform(request.POST,  instance.post)
+        form = Postform(request.POST,  instance=post)
         if form.is_valid():
             post = form.save()
             return redirect('post_detail', pk=post.pk)
