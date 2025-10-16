@@ -8,17 +8,17 @@ def  notes_list(request):
 
 def note_detail(request, pk):
     note = get_object_or_404(Notes, pk=pk)
-    comments = note.comments.all()  # Get comments for THIS note only
+    comments = note.comments.all()
     
     if request.method == 'POST':
-        form = CommentForm(request.POST)  # No instance for new comment
+        form = CommentForm(request.POST) 
         if form.is_valid():
-            comment = form.save(commit=False)  # Don't save yet
-            comment.note = note  # ASSOCIATE with current note
-            comment.save()  # Now save
-            form = CommentForm()  # Reset form
+            comment = form.save(commit=False) 
+            comment.note = note  
+            comment.save()  
+            form = CommentForm()  
     else:
-        form = CommentForm()  # No instance for new comment
+        form = CommentForm()  
     
     return render(request, "notes/note_detail.html", {
         "note": note, 
