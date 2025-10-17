@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 from .models import Notes
 from .forms import *
 
@@ -15,8 +16,9 @@ def note_detail(request, pk):
         if form.is_valid():
             comment = form.save(commit=False) 
             comment.note = note  
-            comment.save()  
-            form = CommentForm()  
+            comment.save()
+            messages.success(request, "Your comment has been added successfully, Thanks for your Commentt")
+            return redirect('note_detail', pk=note.pk)
     else:
         form = CommentForm()  
     
