@@ -5,7 +5,18 @@
     <title>{{ note.title }}</title>
 </head>
 <body>
-
+    <header>
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}! 
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout">Log Out</button>
+                </form> | <a href="{% url 'notes_list' %}">Back to Notes</a>
+            </p>
+        {% else %}
+            <p><a href="{% url 'login' %}">Log In</a> | <a href="{% url 'signup' %}">Sign Up</a></p>
+        {% endif %}
+    </header>
 <h1>{{ note.title }} <h5>Edited on : {{ note.last_update }}</h5></h1>
 <p>{{ note.content }}</p>
 
