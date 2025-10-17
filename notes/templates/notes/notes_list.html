@@ -6,6 +6,15 @@
     <title>Document</title>
 </head>
 <body>
+  {% if messages %}
+    <ul>
+        {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>
+                {{ message }}
+            </li>
+        {% endfor %}
+    </ul>
+  {% endif %}
     <h1>All Notes</h1>
     <a href="{% url 'note_create' %}">Create New Note</a>
     <ul>
