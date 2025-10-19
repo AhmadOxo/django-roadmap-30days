@@ -25,7 +25,7 @@
     <ul>
         {% for comment in comments %}
             <li>
-                <strong>{{ comment.author }}</strong> said:<br>
+                <strong>{{ user.username }}</strong> said:<br>
                 {{ comment.body }}<br>
                 <small>{{ comment.published_at }}</small>
             </li>
@@ -34,13 +34,16 @@
 {% else %}
     <p>No comments yet</p>
 {% endif %}
-
-<h3>Add your Comment</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Comment</button>
-</form>
+{% if user.is_authenticated %}
+    <h3>Add your Comment</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Comment</button>
+    </form>
+{% else %}
+    <p>Please <a href="{% url 'login' %}">log in</a> to add a comment.</p>
+{% endif %}
 
 <p>
     <a href="{% url 'notes_list' %}">Back to Notes</a> |

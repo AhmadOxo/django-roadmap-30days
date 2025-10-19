@@ -21,6 +21,7 @@ def  notes_list(request):
     notes = Notes.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'notes/notes_list.html', {'notes': notes})
 
+@login_required
 def note_detail(request, pk):
     note = get_object_or_404(Notes, pk=pk, user=request.user)
     comments = note.comments.all()
@@ -30,6 +31,7 @@ def note_detail(request, pk):
         if form.is_valid():
             comment = form.save(commit=False) 
             comment.note = note  
+            comment.user = request.user
             comment.save()
             messages.success(request, "Your comment has been added successfully, Thanks for your Commentt")
             return redirect('note_detail', pk=note.pk)

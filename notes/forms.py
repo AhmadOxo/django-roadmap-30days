@@ -10,8 +10,7 @@ class NoteForm(forms.ModelForm):
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
-        fields = ['author', 'body']
+        fields = ['body']
         widgets = {
-            'author': forms.TextInput(attrs={'placeholder': 'Your name'}),
             'body': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Your comment...'}),
         }
