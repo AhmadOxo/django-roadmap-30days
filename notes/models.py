@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Notes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=100)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -12,7 +12,7 @@ class Notes(models.Model):
     
 class Comment(models.Model):
     note = models.ForeignKey(Notes, on_delete=models.CASCADE, related_name='comments')
-    author = models.CharField(max_length=40)
+    author = models.CharField(max_length=40,)
     body = models.TextField()
     published_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
