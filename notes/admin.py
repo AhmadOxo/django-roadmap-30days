@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import * # The Star means "All" or everything That's there
-
+from .models import Notes, Comment
 
 @admin.register(Notes)
-class Notes(admin.ModelAdmin):
-    list_display = ('id', 'title', 'created_at', 'last_update')
-    search_fields = ('title', 'content')
-    list_per_page = 10
+class NotesAdmin(admin.ModelAdmin):
+    list_display = ['title', 'user', 'created_at', 'last_update']
+    list_filter = ['created_at', 'user']
+    search_fields = ['title', 'content']
 
-admin.site.register(Comment)
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['note', 'author', 'published_at']
+    list_filter = ['published_at']

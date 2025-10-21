@@ -3,9 +3,39 @@
 <head><title>{{ post.title }}</title></head>
 <body>
   <h1>{{ post.title }}</h1>
+  {% if post.categories.exists %}
+  <ul>
+    {% for category in post.categories.all %}
+      <span><i>{{ category.name }}</i></span>
+    {% endfor %}
+    </ul>
+  {% endif %}
   <p>{{ post.content }}</p>
+  <p>By {{ post.author }} on {{ post.created_at|date:"Y-m-d" }}</p>
+  <h3>Comments ({{ comments.count }})</h3>
+  {% if comments %}
+      <ul>
+      {% for comment in comments %}
+          <li>{{ comment.body }} <br><small>By {{ comment.author }} on {{ comment.published_at }}</small></li>
+      {% endfor %}
+      </ul>
+  {% else %}
+      <p>No comments yet.</p>
+  {% endif %}
+  {% if user.is_authenticated %}
+      <h3>Add a Comment</h3>
+      <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Save Comment</button>
+      </form>
+  {% else %}
+      <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
+  {% endif %}
   <a href="{% url 'post_list' %}">Back</a>
-  <a href="{% url 'post_update' post.pk %}">Edit</a>
-  <a href="{% url 'post_delete' post.pk %}">Delete</a>
+  {% if user.is_authenticated and post.author == user %}
+      <a href="{% url 'post_update' post.pk %}">Edit</a>
+      <a href="{% url 'post_delete' post.pk %}">Delete</a>
+  {% endif %}
 </body>
 </html>
