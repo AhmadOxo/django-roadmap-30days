@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.name }}</title>
+</head>
+<body>
+    <h1>Posts in {{ category.name }}</h1>
+    <ul>
+    {% for post in posts %}
+        <li class="list-group-item">
+            <a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a>
+            <small>by {{ post.author }} on {{ post.created_at|date:"Y-m-d" }}</small>
+        </li>
+    {% empty %}
+        <li>No posts in this category.</li>
+    {% endfor %}
+    </ul>
+    <a href="{% url 'post_list' %}">Back to All Posts</a>
+</body>
+</html>

@@ -2,16 +2,21 @@
 <html>
 <head><title>{{ post.title }}</title></head>
 <body>
-  <h1>{{ post.title }}</h1>
-  {% if post.categories.exists %}
-  <ul>
-    {% for category in post.categories.all %}
-      <span><i>{{ category.name }}</i></span>
-    {% endfor %}
-    </ul>
-  {% endif %}
-  <p>{{ post.content }}</p>
-  <p>By {{ post.author }} on {{ post.created_at|date:"Y-m-d" }}</p>
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.content }}</p>
+    <p>By {{ post.author }} on {{ post.created_at|date:"Y-m-d" }}</p>
+    <h3>Categories</h3>
+    {% if post.categories.exists %}
+        <ul>
+            {% for category in post.categories.all %}
+                <li>
+                    <a href="{% url 'posts_by_category' category.slug %}">{{ category.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No category assigned.</p>
+    {% endif %}
   <h3>Comments ({{ comments.count }})</h3>
   {% if comments %}
       <ul>

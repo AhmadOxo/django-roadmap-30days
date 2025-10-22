@@ -1,11 +1,24 @@
 from django.db import models
+from django.utils.text import slugify
 from django.contrib.auth.models import User
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    
+    slug = models.SlugField(max_length=100, unique=True)
+
     def __str__(self):
         return self.name 
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.name)
+            new_slug = base_slug
+            attempt = 1
+            while Category.objects.filter(slug=new_slug).exclude(id=self.id).exists():
+                new_slug = f"{base_slug}-{attempt}"
+                attempt += 1
+            self.slug = new_slug
+        super().save(*args, **kwargs)
 
 class Post(models.Model):
     title = models.CharField(max_length=300)

@@ -63,3 +63,12 @@ def post_delete(request, pk):
         post.delete()
         return redirect('post_list')
     return render(request, 'blog/post_confirm_delete.html', {'post': post})
+
+def posts_by_category(request, category_slug):
+    category = get_object_or_404(Category, slug = category_slug)
+    posts = Post.objects.filter(categories = category).order_by('-created_at')
+    return render(request, 'blog/posts_by_category.html', 
+                  {
+                      'category': category,
+                      'posts': posts
+                  })
