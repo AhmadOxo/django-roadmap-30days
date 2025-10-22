@@ -39,8 +39,8 @@
   {% endif %}
   <a href="{% url 'post_list' %}">Back</a>
   {% if user.is_authenticated and post.author == user %}
-      <a href="{% url 'post_update' post.pk %}">Edit</a>
-      <a href="{% url 'post_delete' post.pk %}">Delete</a>
+      <a href="{% url 'post_update' post.slug %}">Edit</a>
+      <a href="{% url 'post_delete' post.slug %}">Delete</a>
   {% endif %}
 </body>
 </html>

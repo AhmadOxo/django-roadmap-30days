@@ -3,9 +3,10 @@ from .models import Post, Category, Comment
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'author', 'created_at']
-    list_filter = ['created_at', 'categories']
-    search_fields = ['title', 'content']
+    list_display = ['title', 'author', 'created_at', 'slug']
+    list_filter = ['created_at', 'categories', 'slug']
+    search_fields = ['title', 'content', 'slug']
+    exclude = ['slug']
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

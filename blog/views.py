@@ -9,8 +9,8 @@ def post_list(request):
     return render(request, 'blog/post_list.html', {'posts': posts})
 
 @login_required
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
+def post_detail(request, slug):
+    post = get_object_or_404(Post, slug=slug)
     comments = post.comments.all()
     if request.method == 'POST':
         form = CommentForm(request.POST)
@@ -20,7 +20,7 @@ def post_detail(request, pk):
             comment.author = request.user
             comment.save()
             messages.success(request, "Comment added successfully!")
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail', slug=post.slug)
     else:
         form = CommentForm()
     
@@ -39,26 +39,26 @@ def post_create(request):
             post.author = request.user
             post.save()
             form.save_m2m()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail', slug=post.slug)
     else:
         form = Postform()
     return render(request, 'blog/post_form.html', {'form':form})
 
 @login_required
-def post_update(request, pk):
-    post = get_object_or_404(Post, pk=pk, author=request.user)
+def post_update(request, slug):
+    post = get_object_or_404(Post, slug=slug, author=request.user)
     if request.method == 'POST':
         form = Postform(request.POST,  instance=post)
         if form.is_valid():
             post = form.save()
-            return redirect('post_detail', pk=post.pk)
+            return redirect('post_detail', slug=post.slug)
     else:
         form = Postform(instance=post)
     return render(request, 'blog/post_form.html', {'form': form})
 
 @login_required
-def post_delete(request, pk):
-    post = get_object_or_404(Post, pk=pk, author=request.user)
+def post_delete(request, slug):
+    post = get_object_or_404(Post, slug=slug, author=request.user)
     if request.method == 'POST':
         post.delete()
         return redirect('post_list')
