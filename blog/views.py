@@ -1,13 +1,31 @@
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.views.generic import ListView
 from django.contrib import messages
-from .forms import *
+from typing import Any
 from .models import *
+from .forms import *
 
+"""
 def post_list(request):
     posts = Post.objects.all().order_by('-created_at')
     return render(request, 'blog/post_list.html', {'posts': posts})
+    
+"""
 
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
+    paginate_by = 5
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['Category'] = Category.objects.all()
+        return context
+    
 @login_required
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
@@ -67,8 +85,12 @@ def post_delete(request, slug):
 def posts_by_category(request, category_slug):
     category = get_object_or_404(Category, slug = category_slug)
     posts = Post.objects.filter(categories = category).order_by('-created_at')
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     return render(request, 'blog/posts_by_category.html', 
                   {
                       'category': category,
-                      'posts': posts
+                      'posts': page_obj,
+                      'page_obj': page_obj,
                   })
