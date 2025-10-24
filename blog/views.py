@@ -12,6 +12,18 @@ def post_list(request):
     posts = Post.objects.all().order_by('-created_at')
     return render(request, 'blog/post_list.html', {'posts': posts})
     
+def posts_by_category(request, category_slug):
+    category = get_object_or_404(Category, slug = category_slug)
+    posts = Post.objects.filter(categories = category).order_by('-created_at')
+    paginator = Paginator(posts, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'blog/posts_by_category.html', 
+                  {
+                      'category': category,
+                      'posts': page_obj,
+                      'page_obj': page_obj,
+                  })
 """
 
 class PostListView(ListView):
@@ -82,15 +94,23 @@ def post_delete(request, slug):
         return redirect('post_list')
     return render(request, 'blog/post_confirm_delete.html', {'post': post})
 
-def posts_by_category(request, category_slug):
-    category = get_object_or_404(Category, slug = category_slug)
-    posts = Post.objects.filter(categories = category).order_by('-created_at')
-    paginator = Paginator(posts, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'blog/posts_by_category.html', 
-                  {
-                      'category': category,
-                      'posts': page_obj,
-                      'page_obj': page_obj,
-                  })
+class PostsByCategoryView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_category.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        category = get_object_or_404(Category, slug=self.kwargs['category_slug'])
+        qs = Post.objects.filter(categories=category).order_by('-created_at')
+        print(f"Category: {category.name} (slug: {self.kwargs['category_slug']})")
+        print(f"Filtered posts: {qs.count()}")
+        print(f"Post titles: {[post.title for post in qs]}")
+        print(f"Page size: {self.paginate_by}")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = get_object_or_404(Category, slug=self.kwargs['category_slug'])
+        context['categories'] = Category.objects.all()  # For sidebar
+        return context
