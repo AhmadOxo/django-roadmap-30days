@@ -12,8 +12,12 @@
       <li><a href="{% url 'logout' %}">Logout</a></li>
     </ul>
   </li>
+  <form action="{% url 'search' %}" method="get">
+    <input type="search" name="q" placeholder="Search" aria-label="Search">
+    <button type="submit">Search</button>
+  </form>
   <p>Go to <a href="{% url 'notes_list' %}">Notes</a></p>
-  <h1>All Posts</h1>
+  <h1>Latest Posts</h1>
   <a href="{% url 'post_create' %}">Create New Post</a>
   <ul>
     {% for post in posts %}

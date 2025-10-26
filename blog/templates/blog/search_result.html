@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results for {{ query }}</title>
+</head>
+<body>
+    <form action="{% url 'search' %}" method="get">
+        <input type="search" name="q" placeholder="Search" aria-label="Search" value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+    <h1>Search Results for "{{ query }}"</h1>
+    {% if posts %}
+        <ul>
+            {% for post in posts %}
+                <li>
+                    <h5>
+                        <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
+                    </h5>
+                    <p>Post Created By <a href="{% url 'user:profile' post.author.username %}">{{ post.author.username }}</a> | {{ post.created_at|date:"M d, Y" }}</p>
+                </li>
+            {% empty %}
+                <p>No results found for "{{ query }}".</p>
+            {% endfor %}
+        </ul>
+        {% if page_obj.has_other_pages %}
+            <ul>
+                {% if page_obj.has_previous %}
+                    <li>
+                        <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <span>Previous</span>
+                    </li>
+                {% endif %}
+                {% for num in page_obj.paginator.page_range %}
+                    <li>
+                        <a href="?q={{ query|urlencode }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <li>
+                        <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                {% else %}
+                    <li>
+                        <span>Next</span>
+                    </li>
+                {% endif %}
+            </ul>
+        {% endif %}
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+    <p><a href="{% url 'post_list' %}">Back to Posts</a></p>
+</body>
+</html>

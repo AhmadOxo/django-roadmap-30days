@@ -1,3 +1,5 @@
+from django.db.models.query import QuerySet
+from django.db.models import Q
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -7,7 +9,7 @@ from typing import Any
 from .models import *
 from .forms import *
 
-"""
+""" FBV - Function Based View 
 def post_list(request):
     posts = Post.objects.all().order_by('-created_at')
     return render(request, 'blog/post_list.html', {'posts': posts})
@@ -26,18 +28,6 @@ def posts_by_category(request, category_slug):
                   })
 """
 
-class PostListView(ListView):
-    model = Post
-    template_name = 'blog/post_list.html'
-    context_object_name = 'posts'
-    ordering = ['-created_at']
-    paginate_by = 5
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['Category'] = Category.objects.all()
-        return context
-    
 @login_required
 def post_detail(request, slug):
     post = get_object_or_404(Post, slug=slug)
@@ -94,6 +84,18 @@ def post_delete(request, slug):
         return redirect('post_list')
     return render(request, 'blog/post_confirm_delete.html', {'post': post})
 
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
+    paginate_by = 5
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['Category'] = Category.objects.all()
+        return context
+    
 class PostsByCategoryView(ListView):
     model = Post
     template_name = 'blog/posts_by_category.html'
@@ -114,3 +116,54 @@ class PostsByCategoryView(ListView):
         context['category'] = get_object_or_404(Category, slug=self.kwargs['category_slug'])
         context['categories'] = Category.objects.all()  # For sidebar
         return context
+
+class SearchView(ListView):
+    model = Post
+    template_name = 'blog/search_results.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        page = self.request.GET.get('page', '1')
+        print(f"Query parameter: {query}, Page: {page}")
+        if query:
+            qs = Post.objects.filter(
+                Q(title__icontains=query) | Q(content__icontains=query)
+            ).order_by('-created_at')
+            print(f"Search query: {query}, Results: {qs.count()}")
+            print(f"Post titles: {[post.title for post in qs]}")
+            print(f"Rendering template: {self.template_name}")
+            return qs
+        print("No query provided, returning empty queryset")
+        return Post.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get('q', '')
+        print(f"Context query: {query}")
+        context['query'] = query
+        context['categories'] = Category.objects.all()
+        return context
+
+# class SearchView(ListView):
+#     model = Post
+#     template_name = 'blog/search_results.html'
+#     context_object_name = 'posts'
+#     paginate_by = 5
+
+#     def get_queryset(self):
+#         query = self.request.GET.get('q')
+#         if query:
+#             qs = Post.objects.filter(
+#                 Q(title__icontains=query) | Q(content__icontains=query)
+#             ).order_by('-created_at')
+#             return qs
+#         return Post.objects.none()
+    
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context['query'] = self.request.GET.get('q', '')
+#         context['categories'] = Category.objects.all()
+#         print(f"Rendering template: {self.template_name}")
+#         return context
