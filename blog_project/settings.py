@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'notes',
     'accounts.apps.AccountsConfig',
     'widget_tweaks',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

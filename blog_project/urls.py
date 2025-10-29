@@ -9,6 +9,7 @@ urlpatterns = [
     path('notes/', include('notes.urls')),
     path("accounts/", include("django.contrib.auth.urls")),
     path('user/', include("accounts.urls")),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:
