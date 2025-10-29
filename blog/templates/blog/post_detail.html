@@ -1,46 +1,51 @@
-<!doctype html>
-<html>
-<head><title>{{ post.title }}</title></head>
-<body>
-    <h1>{{ post.title }}</h1>
-    <p>{{ post.content }}</p>
-    <p>By {{ post.author }} on {{ post.created_at|date:"Y-m-d" }}</p>
-    <h3>Categories</h3>
-    {% if post.categories.exists %}
-        <ul>
-            {% for category in post.categories.all %}
-                <li>
-                    <a href="{% url 'posts_by_category' category.slug %}">{{ category.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No category assigned.</p>
-    {% endif %}
-  <h3>Comments ({{ comments.count }})</h3>
-  {% if comments %}
-      <ul>
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <div class="card-body">
+      <h1 class="card-title">{{ post.title }}</h1>
+      <p class="text-muted">
+        By <strong>{{ post.author }}</strong> on {{ post.created_at|date:"F d, Y" }}
+      </p>
+
+      <div class="mb-3">
+        {% for cat in post.categories.all %}
+          <a href="{% url 'posts_by_category' cat.slug %}" class="badge bg-primary text-decoration-none me-1">{{ cat.name }}</a>
+        {% endfor %}
+      </div>
+
+      <p class="lead">{{ post.content|linebreaks }}</p>
+
+      <hr>
+
+      <h4>Comments ({{ comments.count }})</h4>
       {% for comment in comments %}
-          <li>{{ comment.body }} <br><small>By {{ comment.author }} on {{ comment.published_at }}</small></li>
+        <div class="border-start border-primary ps-3 mb-3">
+          <p><strong>{{ comment.author }}</strong> <small class="text-muted">{{ comment.published_at|date:"M d" }}</small></p>
+          <p>{{ comment.body|linebreaks }}</p>
+        </div>
+      {% empty %}
+        <p class="text-muted">No comments yet. Be the first!</p>
       {% endfor %}
-      </ul>
-  {% else %}
-      <p>No comments yet.</p>
-  {% endif %}
-  {% if user.is_authenticated %}
-      <h3>Add a Comment</h3>
-      <form method="post">
+
+      {% if user.is_authenticated %}
+        <h5>Add a Comment</h5>
+        <form method="post">
           {% csrf_token %}
-          {{ form.as_p }}
-          <button type="submit">Save Comment</button>
-      </form>
-  {% else %}
-      <p><a href="{% url 'login' %}">Log in</a> to add a comment.</p>
-  {% endif %}
-  <a href="{% url 'post_list' %}">Back</a>
-  {% if user.is_authenticated and post.author == user %}
-      <a href="{% url 'post_update' post.slug %}">Edit</a>
-      <a href="{% url 'post_delete' post.slug %}">Delete</a>
-  {% endif %}
-</body>
-</html>
+          <div class="mb-3">{{ form.as_p }}</div>
+          <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+      {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to comment.</p>
+      {% endif %}
+
+      <hr>
+      <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">← Back</a>
+      {% if user == post.author %}
+        <a href="{% url 'post_update' post.slug %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'post_delete' post.slug %}" class="btn btn-danger">Delete</a>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.db.models.query import QuerySet
 from django.db.models import Q
+from django.db.models import Count
 from django.shortcuts import render, get_object_or_404, redirect, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -93,8 +94,11 @@ class PostListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['Category'] = Category.objects.all()
+        context['categories'] = Category.objects.annotate(
+                    post_count=Count('post')
+                ).order_by('name')
         return context
+        
     
 class PostsByCategoryView(ListView):
     model = Post

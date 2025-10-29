@@ -1,59 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Results for {{ query }}</title>
-</head>
-<body>
-    <form action="{% url 'search' %}" method="get">
-        <input type="search" name="q" placeholder="Search" aria-label="Search" value="{{ query }}">
-        <button type="submit">Search</button>
-    </form>
-    <h1>Search Results for "{{ query }}"</h1>
-    {% if posts %}
-        <ul>
-            {% for post in posts %}
-                <li>
-                    <h5>
-                        <a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a>
-                    </h5>
-                    <p>Post Created By <a href="{% url 'user:profile' post.author.username %}">{{ post.author.username }}</a> | {{ post.created_at|date:"M d, Y" }}</p>
-                </li>
-            {% empty %}
-                <p>No results found for "{{ query }}".</p>
-            {% endfor %}
-        </ul>
-        {% if page_obj.has_other_pages %}
-            <ul>
-                {% if page_obj.has_previous %}
-                    <li>
-                        <a href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">Previous</a>
-                    </li>
-                {% else %}
-                    <li>
-                        <span>Previous</span>
-                    </li>
-                {% endif %}
-                {% for num in page_obj.paginator.page_range %}
-                    <li>
-                        <a href="?q={{ query|urlencode }}&page={{ num }}">{{ num }}</a>
-                    </li>
-                {% endfor %}
-                {% if page_obj.has_next %}
-                    <li>
-                        <a href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Next</a>
-                    </li>
-                {% else %}
-                    <li>
-                        <span>Next</span>
-                    </li>
-                {% endif %}
-            </ul>
-        {% endif %}
+{% extends "base.html" %}
+{% block title %}Search Results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="mb-4">
+    {% if query %}
+      Search Results for "<strong>{{ query }}</strong>"
+      <small class="text-muted">({{ count }} found)</small>
     {% else %}
-        <p>No results found.</p>
+      Search Posts
     {% endif %}
-    <p><a href="{% url 'post_list' %}">Back to Posts</a></p>
-</body>
-</html>
+  </h2>
+
+  {% if query and posts %}
+    <div class="row">
+      {% for post in posts %}
+        <div class="col-md-6 mb-3">
+          <div class="card h-100">
+            <div class="card-body">
+              <h5>
+                <a href="{% url 'post_detail' post.pk %}" class="text-decoration-none">
+                  {{ post.title|truncatewords:8 }}
+                </a>
+              </h5>
+              <p class="text-muted small">
+                By {{ post.author }} • {{ post.created_at|date:"M d, Y" }}
+              </p>
+              <p class="card-text">
+                {{ post.content|striptags|truncatewords:20 }}
+              </p>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% elif query %}
+    <div class="alert alert-info">
+      <i class="fas fa-info-circle"></i> No posts found for "<strong>{{ query }}</strong>".
+    </div>
+  {% else %}
+    <p class="text-muted">Type something to search...</p>
+  {% endif %}
+
+  <div class="mt-4">
+    <a href="{% url 'post_list' %}" class="btn btn-outline-secondary">
+      ← Back to All Posts
+    </a>
+  </div>
+</div>
+
+{% endblock %}

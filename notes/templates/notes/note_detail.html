@@ -1,64 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ note.title }}</title>
-</head>
-<body>
-    <header>
-        {% if user.is_authenticated %}
-            <p>Welcome, {{ user.username }}! 
-                <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="logout">Log Out</button>
-                </form> | <a href="{% url 'notes_list' %}">Back to Notes</a>
-            </p>
-        {% else %}
-            <p><a href="{% url 'login' %}">Log In</a> | <a href="{% url 'signup' %}">Sign Up</a></p>
-        {% endif %}
-    </header>
-<h1>{{ note.title }} <h5>Edited on : {{ note.last_update }}</h5></h1>
-<p>{{ note.content }}</p>
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}{{ note.title }}{% endblock %}
 
-<h3>Comments ({{ comments.count }})</h3>
-{% if comments %}
-    <ul>
-        {% for comment in comments %}
-            <li>
-                <strong>{{ user.username }}</strong> said:<br>
-                {{ comment.body }}<br>
-                <small>{{ comment.published_at }}</small>
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No comments yet</p>
-{% endif %}
-{% if user.is_authenticated %}
-    <h3>Add your Comment</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Comment</button>
-    </form>
-{% else %}
-    <p>Please <a href="{% url 'login' %}">log in</a> to add a comment.</p>
-{% endif %}
-
-<p>
-    <a href="{% url 'notes_list' %}">Back to Notes</a> |
-    <a href="{% url 'note_edit' note.pk %}">Edit Note</a> |
-    <a href="{% url 'note_delete' note.pk %}">Delete Note</a>
-</p>
-
-</body>
-{% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>
-                {{ message }}
-            </li>
-        {% endfor %}
-    </ul>
-{% endif %}
-</html>
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">{{ note.title }}</h4>
+        <div>
+          <a href="{% url 'note_edit' note.pk %}" class="btn btn-warning btn-sm">
+            <i class="fas fa-edit"></i> Edit
+          </a>
+          <a href="{% url 'note_delete' note.pk %}" class="btn btn-danger btn-sm">
+            <i class="fas fa-trash"></i> Delete
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-muted small mb-3">
+          Last updated: {{ note.last_update|date:"F d, Y \a\t h:i A" }}
+        </p>
+        <div class="note-content">
+          {{ note.content|linebreaks }}
+        </div>
+      </div>
+      <div class="card-footer text-center">
+        <a href="{% url 'notes_list' %}" class="btn btn-outline-secondary">
+          <i class="fas fa-arrow-left"></i> Back to Notes
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

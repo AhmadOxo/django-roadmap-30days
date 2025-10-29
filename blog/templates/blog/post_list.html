@@ -1,59 +1,87 @@
-<!doctype html>
-<html>
-<head><title>My Blog</title></head>
-<body>
-  <li >
-    <a href="#" role="button" data-bs-toggle="dropdown">
-      <i>{{ user.username }}</i> 
-    </a>
-    <ul>
-      <li><a href="{% url 'user:profile' user.username %}">My Profile</a></li>
-      <li><hr></li>
-      <li><a href="{% url 'logout' %}">Logout</a></li>
-    </ul>
-  </li>
-  <form action="{% url 'search' %}" method="get">
-    <input type="search" name="q" placeholder="Search" aria-label="Search">
-    <button type="submit">Search</button>
+{% extends "base.html" %}
+{% block title %}All Posts{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>All Posts</h1>
+    {% if user.is_authenticated %}
+      <a href="{% url 'post_create' %}" class="btn btn-success">
+        <i class="fas fa-plus"></i> New Post
+      </a>
+    {% endif %}
+  </div>
+  <form class="d-flex me-3" method="get" action="{% url 'search' %}">
+    <input class="form-control form-control-sm me-2" 
+           type="search" 
+           name="q" 
+           placeholder="Search posts..." 
+           aria-label="Search"
+           value="{{ request.GET.q }}">
+    <button class="btn btn-outline-light btn-sm" type="submit">
+      <i class="fas fa-search"></i>
+    </button>
   </form>
-  <p>Go to <a href="{% url 'notes_list' %}">Notes</a></p>
-  <h1>Latest Posts</h1>
-  <a href="{% url 'post_create' %}">Create New Post</a>
-  <ul>
-    {% for post in posts %}
-      <li><a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a></li>
-    {% empty %}
-      <li>No posts yet.</li>
-    {% endfor %}
-  </ul>
-  {% if page_obj.has_other_pages %}
+  
+
+  {% for post in posts %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">
+          <a href="{% url 'post_detail' post.slug %}" class="text-decoration-none">{{ post.title }}</a>
+        </h5>
+        <p class="card-text text-muted">
+          By <strong>{{ post.author }}</strong> on {{ post.created_at|date:"M d, Y" }}
+          {% if post.categories.exists %}
+            <br><small>
+              {% for cat in post.categories.all %}
+                <a href="{% url 'posts_by_category' cat.slug %}" class="badge bg-secondary text-decoration-none">{{ cat.name }}</a>
+              {% endfor %}
+            </small>
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-center text-muted">No posts yet. <a href="{% url 'post_create' %}">Be the first!</a></p>
+  {% endfor %}
+
+  {% if is_paginated %}
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
     {% if page_obj.has_previous %}
-      <li>
-        <a href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      <li class="page-item">
+        <a class="page-link" href="?page=1" aria-label="First">
+          <span aria-hidden="true">&laquo;&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
       </li>
     {% else %}
-      <li>
-        <span>Previous</span>
-      </li>
+      <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
     {% endif %}
-  
-    {% for num in page_obj.paginator.page_range %}
-      <li>
-        <a href="?page{{ num }}">{{ num }}</a>
-      </li>
-    {% endfor %}
-  
-    {% if page_obj.has_next %}
-      <li>
-        <a href="?page={{ page_obj.next_page_number }}">Next</a>
-      </li>
-      {% else %}
-      <li>
-        <span>Next</span>
-      </li>
-    {% endif %}
-  {% endif %}
-    
-</body>
-</html>
 
+    <li class="page-item disabled">
+      <span class="page-link">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </span>
+    </li>
+
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+          <span aria-hidden="true">&raquo;&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+      <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+{% endblock %}
