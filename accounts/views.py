@@ -9,7 +9,7 @@ def profile_view(request, username):
     posts = user.post_set.order_by('-created_at')[:5]
     return render(request, 'accounts/profile.html', {
         'profile_user': user,
-        'posts': posts
+        'posts': posts,
     })
 
 

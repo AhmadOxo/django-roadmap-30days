@@ -5,12 +5,12 @@ from .models import Post
 from .serializers import PostSerializer
 from .permissions import IsOwner
 from .filters import PostFilter
-from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from rest_framework.throttling import UserRateThrottle
 
-@ratelimit(key='ip', rate='100/h', method='POST', block=True)
-def perform_create(self, serializer):
-    serializer.save(author=self.request.user)
 
+@method_decorator(cache_page(60 * 5), name='dispatch')  # 5 min
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer 
@@ -19,6 +19,7 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'title']
     filterset_class = PostFilter
+    throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
