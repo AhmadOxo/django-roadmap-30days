@@ -5,7 +5,11 @@ from .models import Post
 from .serializers import PostSerializer
 from .permissions import IsOwner
 from .filters import PostFilter
+from django_ratelimit.decorators import ratelimit
 
+@ratelimit(key='ip', rate='100/h', method='POST', block=True)
+def perform_create(self, serializer):
+    serializer.save(author=self.request.user)
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-created_at')
